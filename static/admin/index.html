@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Site Editor · House of Serene Wax</title>
+<meta name="theme-color" content="#344E41">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Site Editor">
+<link rel="apple-touch-icon" href="/admin/icon-180.png">
+<link rel="manifest" href="/admin/manifest.webmanifest">
+<link rel="icon" href="/assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --forest:#344E41;--forest-deep:#2A4035;--ink:#1E2B22;--moss:#3A5A40;--sage:#A3B18A;--stone:#DAD7CD;
+  --mist:#EEF0E6;--cream:#FAF8F3;--body:#4A524C;--rule:#E2DFD6;--clay:#BC6C25;--clay-deep:#9C5518;--clay-wash:#F6E9DC;
+  --red:#A23B2A;--serif:'Cormorant Garamond',Georgia,serif;--sans:'Jost',system-ui,-apple-system,sans-serif;
+  --safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--sans);font-weight:400;font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:500;margin:0;line-height:1.15}
+.hidden{display:none!important}
+
+/* Login */
+.login{min-height:100vh;min-height:100dvh;background:var(--forest);display:flex;align-items:center;justify-content:center;padding:24px}
+.login-card{width:100%;max-width:420px;background:var(--cream);border-radius:28px;padding:40px 32px;display:flex;flex-direction:column;gap:18px;text-align:center}
+.login-card img{width:72px;height:72px;margin:0 auto;border-radius:18px}
+.login-card h1{font-size:34px}
+.login-card p{margin:0;color:var(--body)}
+
+/* Shell */
+.top{position:sticky;top:0;z-index:20;background:var(--forest);color:var(--cream);padding:calc(10px + var(--safe-top)) 20px 0}
+.top-row{display:flex;align-items:center;gap:14px;max-width:1100px;margin:0 auto;min-height:56px}
+.top-row img{width:40px;height:40px;border-radius:10px}
+.top-title{font-family:var(--serif);font-size:24px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status{font-size:14px;color:var(--stone);display:flex;align-items:center;gap:8px;white-space:nowrap}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--sage)}
+.dot.dirty{background:#E5A65C}.dot.busy{background:#E5A65C;animation:pulse 1s infinite}.dot.err{background:#E06B5A}
+@keyframes pulse{50%{opacity:.3}}
+.tabs{display:flex;gap:4px;max-width:1100px;margin:6px auto 0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{appearance:none;border:0;background:none;color:var(--stone);padding:14px 16px 16px;font-size:16px;letter-spacing:.02em;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;min-height:48px}
+.tab[aria-selected="true"]{color:#fff;border-bottom-color:var(--clay)}
+main{max-width:1100px;margin:0 auto;padding:28px 20px calc(120px + var(--safe-bot))}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.section-head h2{font-size:38px}
+.section-head p{margin:4px 0 0;color:var(--body);font-size:15px;max-width:560px}
+
+/* Buttons */
+.btn{appearance:none;border:0;border-radius:999px;min-height:48px;padding:0 22px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:500;cursor:pointer;text-decoration:none;transition:transform .1s,background .2s}
+.btn:active{transform:scale(.97)}
+.btn-clay{background:var(--clay-deep);color:#fff}
+.btn-forest{background:var(--forest);color:#fff}
+.btn-ghost{background:transparent;color:var(--forest);border:1.5px solid var(--forest)}
+.btn-soft{background:var(--mist);color:var(--ink)}
+.btn-danger{background:transparent;color:var(--red);border:1.5px solid #E7C3BC}
+.btn-icon{width:48px;padding:0}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.top .btn-ghost{color:var(--cream);border-color:rgba(250,248,243,.45)}
+.top .btn{min-height:44px;padding:0 18px;font-size:15px}
+
+/* Cards & fields */
+.card{background:#fff;border:1px solid var(--rule);border-radius:22px;padding:22px;margin-bottom:16px}
+.card h3{font-size:26px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px 20px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}
+.field label,.label{font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--moss)}
+.hint{font-size:14px;color:var(--body);margin:0}
+input[type=text],input[type=url],input[type=email],input[type=tel],input[type=password],textarea,select{
+  width:100%;min-height:52px;border:1.5px solid var(--rule);border-radius:14px;background:var(--cream);padding:12px 16px;font-size:17px;outline:none;transition:border-color .15s,background .15s}
+textarea{min-height:120px;resize:vertical;line-height:1.55}
+input:focus,textarea:focus,select:focus{border-color:var(--moss);background:#fff}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--moss) 50%),linear-gradient(135deg,var(--moss) 50%,transparent 50%);background-position:calc(100% - 22px) 23px,calc(100% - 16px) 23px;background-size:6px 6px;background-repeat:no-repeat;padding-right:40px}
+
+/* Switch */
+.switch{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:56px;padding:6px 0;cursor:pointer}
+.switch span{display:flex;flex-direction:column}
+.switch small{color:var(--body);font-size:14px}
+.switch input{appearance:none;width:56px;height:34px;border-radius:999px;background:var(--stone);position:relative;flex:0 0 auto;cursor:pointer;transition:background .2s}
+.switch input::after{content:"";position:absolute;top:3px;left:3px;width:28px;height:28px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+.switch input:checked{background:var(--moss)}
+.switch input:checked::after{transform:translateX(22px)}
+
+/* Photo picker */
+.photo{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.thumb{width:132px;height:100px;border-radius:14px;background:var(--mist);flex:0 0 auto;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--body);font-size:13px;position:relative}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb .spin{position:absolute;inset:0;background:rgba(250,248,243,.7);display:flex;align-items:center;justify-content:center}
+.photo-actions{display:flex;gap:10px;flex-wrap:wrap}
+.file-btn{position:relative;overflow:hidden}
+.file-btn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+/* Service list */
+.svc{background:#fff;border:1px solid var(--rule);border-radius:22px;margin-bottom:14px;overflow:hidden}
+.svc.new{border-color:var(--clay)}
+.svc-head{display:flex;align-items:center;gap:16px;padding:14px 16px;cursor:pointer;min-height:84px;width:100%;background:none;border:0;text-align:left}
+.svc-head .thumb{width:72px;height:56px;border-radius:12px}
+.svc-name{font-family:var(--serif);font-size:26px;line-height:1.1}
+.svc-sub{font-size:14px;color:var(--body);display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;align-items:center}
+.badge{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;background:var(--mist);color:var(--moss)}
+.badge.clay{background:var(--clay-deep);color:#fff}
+.chev{margin-left:auto;transition:transform .2s;flex:0 0 auto}
+.svc.open .chev{transform:rotate(180deg)}
+.svc-body{padding:4px 20px 22px;border-top:1px solid var(--rule)}
+.svc-body .grid{margin-top:18px}
+.row-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;padding-top:18px;border-top:1px solid var(--rule)}
+.row-actions .spacer{flex:1}
+
+/* List items (reviews, policies, promises) */
+.item{background:#fff;border:1px solid var(--rule);border-radius:22px;padding:20px;margin-bottom:14px}
+.item-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.item-top .num{font-family:var(--serif);font-size:20px;color:var(--clay-deep);flex:1}
+.add{width:100%;min-height:64px;border:2px dashed var(--sage);background:transparent;border-radius:22px;color:var(--moss);font-size:17px;font-weight:500;cursor:pointer}
+
+/* Toast */
+.toast{position:fixed;left:50%;bottom:calc(100px + var(--safe-bot));transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:14px 22px;border-radius:999px;font-size:16px;opacity:0;pointer-events:none;transition:all .25s;z-index:50;max-width:calc(100% - 32px);text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--red)}
+
+/* Publish bar (bottom, appears when there are changes) */
+.publish-bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--rule);padding:14px 20px calc(14px + var(--safe-bot));transform:translateY(110%);transition:transform .25s;box-shadow:0 -8px 24px rgba(30,43,34,.08)}
+.publish-bar.show{transform:none}
+.publish-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.publish-inner p{margin:0;flex:1;font-size:15px;color:var(--body)}
+.publish-inner .btn{min-width:150px}
+
+.help{background:var(--mist);border-radius:22px;padding:20px 22px;font-size:15px;color:var(--body)}
+.help strong{color:var(--ink)}
+@media (max-width:640px){
+  .top-title{font-size:20px}.status span{display:none}
+  .section-head h2{font-size:32px}
+  .svc-name{font-size:22px}
+  .top .view-site{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<section class="login hidden" id="login">
+  <form class="login-card" id="login-form">
+    <img src="/admin/icon-180.png" alt="">
+    <h1>Site Editor</h1>
+    <p>House of Serene Wax</p>
+    <input type="password" id="pw" placeholder="Password" autocomplete="current-password" required aria-label="Password">
+    <button class="btn btn-clay" type="submit" id="login-btn">Sign in</button>
+    <p class="hint" id="login-err" role="alert"></p>
+  </form>
+</section>
+
+<!-- App -->
+<div id="app" class="hidden">
+  <header class="top">
+    <div class="top-row">
+      <img src="/admin/icon-180.png" alt="">
+      <div class="top-title">Site Editor</div>
+      <div class="status" id="status"><i class="dot" id="dot"></i><span id="status-text">All changes live</span></div>
+      <a class="btn btn-ghost view-site" href="/" target="_blank" rel="noopener">View site</a>
+    </div>
+    <nav class="tabs" role="tablist" id="tabs"></nav>
+  </header>
+  <main id="view"></main>
+  <div class="publish-bar" id="publish-bar">
+    <div class="publish-inner">
+      <p id="publish-msg">You have unpublished changes.</p>
+      <button class="btn btn-soft" id="discard">Discard</button>
+      <button class="btn btn-clay" id="publish">Publish</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+const TABS = [
+  ['services', 'Services'], ['home', 'Home Page'], ['about', 'About'],
+  ['reviews', 'Reviews'], ['policies', 'Policies'], ['settings', 'Settings'],
+];
+const $ = (s) => document.querySelector(s);
+const esc = (v) => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const DRAFT_KEY = 'hosw-draft';
+
+let token = localStorage.getItem('hosw-token') || '';
+let published = null;   // content as last loaded/published
+let data = null;        // working copy
+let sha = null;
+let tab = localStorage.getItem('hosw-tab') || 'services';
+let openSvc = -1;
+let busy = false;
+const uploading = new Set();
+
+/* ---------- API ---------- */
+async function api(path, opts = {}) {
+  const res = await fetch('/api/' + path, {
+    ...opts,
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
+  });
+  const body = await res.json().catch(() => ({}));
+  if (res.status === 401 && path !== 'login') { logout(); throw new Error('Please sign in again.'); }
+  if (!res.ok) throw new Error(body.error || 'Something went wrong.');
+  return body;
+}
+
+/* ---------- auth ---------- */
+$('#login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = $('#login-btn'); btn.disabled = true; $('#login-err').textContent = '';
+  try {
+    const r = await api('login', { method: 'POST', body: JSON.stringify({ password: $('#pw').value }) });
+    token = r.token; localStorage.setItem('hosw-token', token); $('#pw').value = '';
+    await start();
+  } catch (err) { $('#login-err').textContent = err.message; }
+  btn.disabled = false;
+});
+function logout() {
+  token = ''; localStorage.removeItem('hosw-token');
+  $('#app').classList.add('hidden'); $('#login').classList.remove('hidden');
+}
+
+/* ---------- state ---------- */
+const dirty = () => JSON.stringify(data) !== JSON.stringify(published);
+function saveDraft() { try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ sha, data })); } catch (e) {} }
+function clearDraft() { localStorage.removeItem(DRAFT_KEY); }
+function touch() { saveDraft(); updateBar(); }
+
+function getPath(obj, path) { return path.split('.').reduce((o, k) => (o == null ? o : o[k]), obj); }
+function setPath(obj, path, val) {
+  const keys = path.split('.'); const last = keys.pop();
+  const target = keys.reduce((o, k) => o[k], obj); target[last] = val;
+}
+
+function setStatus(kind, text) {
+  $('#dot').className = 'dot ' + (kind || '');
+  $('#status-text').textContent = text;
+}
+function updateBar() {
+  const d = dirty();
+  $('#publish-bar').classList.toggle('show', d || busy);
+  if (!busy) setStatus(d ? 'dirty' : '', d ? 'Unpublished changes' : 'All changes live');
+  $('#publish').disabled = busy || uploading.size > 0;
+  $('#publish-msg').textContent = uploading.size ? 'Uploading photo…' : 'You have unpublished changes.';
+}
+let toastTimer;
+function toast(msg, err) {
+  const t = $('#toast'); t.textContent = msg; t.className = 'toast show' + (err ? ' err' : '');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), err ? 5000 : 3000);
+}
+
+/* ---------- field builders ---------- */
+function text(path, label, opts = {}) {
+  const v = getPath(data, path) ?? '';
+  const type = opts.type || 'text';
+  return `<div class="field${opts.full ? ' full' : ''}"><label for="f-${path}">${label}</label>
+    <input id="f-${path}" type="${type}" data-path="${path}" value="${esc(v)}" placeholder="${esc(opts.ph || '')}" ${type === 'url' ? 'inputmode="url" autocapitalize="off" autocorrect="off"' : ''}>
+    ${opts.hint ? `<p class="hint">${opts.hint}</p>` : ''}</div>`;
+}
+function area(path, label, opts = {}) {
+  const v = getPath(data, path) ?? '';
+  return `<div class="field full"><label for="f-${path}">${label}</label>
+    <textarea id="f-${path}" data-path="${path}" placeholder="${esc(opts.ph || '')}" style="${opts.rows ? `min-height:${opts.rows * 28}px` : ''}">${esc(v)}</textarea>
+    ${opts.hint ? `<p class="hint">${opts.hint}</p>` : ''}</div>`;
+}
+function toggle(path, label, sub) {
+  return `<label class="switch"><span>${label}${sub ? `<small>${sub}</small>` : ''}</span><input type="checkbox" data-path="${path}" ${getPath(data, path) ? 'checked' : ''}></label>`;
+}
+function photoField(path, label, hint) {
+  const v = getPath(data, path);
+  const up = uploading.has(path);
+  return `<div class="field full"><span class="label">${label}</span>
+    <div class="photo">
+      <div class="thumb">${v ? `<img src="${esc(previews[path] || v)}" alt="">` : 'No photo'}${up ? '<div class="spin">Uploading…</div>' : ''}</div>
+      <div class="photo-actions">
+        <span class="btn btn-forest file-btn">${v ? 'Replace photo' : 'Add photo'}<input type="file" accept="image/*" data-photo="${path}" aria-label="${esc(label)}"></span>
+        ${v ? `<button class="btn btn-soft" type="button" data-clear="${path}">Remove</button>` : ''}
+      </div>
+    </div>${hint ? `<p class="hint">${hint}</p>` : ''}</div>`;
+}
+const previews = {};
+const chev = '<svg class="chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3A5A40" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>';
+
+/* ---------- views ---------- */
+function viewServices() {
+  const cats = [...new Set(data.services.map((s) => s.category).filter(Boolean).concat(['Waxing', 'Treatments']))];
+  const list = data.services.map((s, i) => {
+    const open = openSvc === i;
+    const p = `services.${i}`;
+    return `<div class="svc${open ? ' open' : ''}${s.isNew ? ' new' : ''}">
+      <button class="svc-head" type="button" data-open="${i}" aria-expanded="${open}">
+        <div class="thumb">${s.photo ? `<img src="${esc(previews[p + '.photo'] || s.photo)}" alt="">` : ''}</div>
+        <div><div class="svc-name">${esc(s.name || 'New service')}</div>
+          <div class="svc-sub">${esc(s.category || '')}${s.price ? ' · ' + esc(s.price) : ' · <em>no price yet</em>'}
+          ${s.favorite ? '<span class="badge">Client Favorite</span>' : ''}${s.isNew ? `<span class="badge clay">${esc(data.settings.newServiceTag || 'New')}</span>` : ''}</div></div>
+        ${chev}
+      </button>
+      ${open ? `<div class="svc-body">
+        <div class="grid">
+          ${text(p + '.name', 'Service name')}
+          <div class="field"><label for="cat-${i}">Section</label>
+            <select id="cat-${i}" data-path="${p}.category">${cats.map((c) => `<option ${c === s.category ? 'selected' : ''}>${esc(c)}</option>`).join('')}<option value="__new">+ New section…</option></select></div>
+          ${text(p + '.price', 'Price', { ph: '$65', hint: 'Shown as “from $65” in the menu. Leave blank to hide.' })}
+          ${text(p + '.duration', 'Length', { ph: '30 min', hint: 'Optional.' })}
+          ${area(p + '.description', 'Short description', { rows: 3, ph: 'What’s included, who it’s for…' })}
+          ${photoField(p + '.photo', 'Photo')}
+        </div>
+        <div style="margin-top:12px">
+          ${toggle(p + '.favorite', 'Show in Client Favorites', 'Adds a card on the home page.')}
+          ${toggle(p + '.isNew', `Show “${esc(data.settings.newServiceTag || 'New service')}” tag`, 'Highlights it in orange. Change the tag text in Settings.')}
+        </div>
+        <div class="row-actions">
+          <button class="btn btn-soft btn-icon" type="button" data-move="services:${i}:-1" aria-label="Move up" ${i === 0 ? 'disabled' : ''}>↑</button>
+          <button class="btn btn-soft btn-icon" type="button" data-move="services:${i}:1" aria-label="Move down" ${i === data.services.length - 1 ? 'disabled' : ''}>↓</button>
+          <span class="spacer"></span>
+          <button class="btn btn-danger" type="button" data-del="services:${i}">Delete service</button>
+        </div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+  return `<div class="section-head"><div><h2>Services</h2><p>Tap a service to edit it. Use the arrows to change the order on the site.</p></div></div>
+    ${list}
+    <button class="add" type="button" data-add="services">+ Add a service</button>`;
+}
+
+function viewHome() {
+  return `<div class="section-head"><div><h2>Home Page</h2><p>The banner, intro text and studio video.</p></div></div>
+    <div class="card"><h3>Banner</h3><div class="grid">
+      ${photoField('home.bannerPhoto', 'Banner photo', 'Sits behind the logo at the top. Wide photos work best.')}
+      ${text('home.bannerVideo', 'Banner video link (optional)', { type: 'url', full: true, ph: 'https://…/video.mp4', hint: 'A direct link to an .mp4 file plays silently behind the logo instead of the photo.' })}
+    </div></div>
+    <div class="card"><h3>Intro</h3><div class="grid">
+      ${area('home.introText', 'Text under “Waxing, made serene.”', { rows: 4 })}
+    </div></div>
+    <div class="card"><h3>Services section photo</h3><div class="grid">
+      ${photoField('home.menuPhoto', 'Photo next to the service menu', 'A tall photo works best.')}
+    </div></div>
+    <div class="card"><h3>Studio video</h3><div class="grid">
+      ${text('home.studioVideo', 'Video link', { type: 'url', full: true, ph: 'YouTube or Vimeo link', hint: 'Paste a YouTube or Vimeo link. Instagram and TikTok links can’t be shown here.' })}
+      ${area('home.studioText', 'Text next to the video', { rows: 2 })}
+    </div></div>`;
+}
+
+function viewAbout() {
+  const promises = data.about.promises.map((p, i) => `<div class="item">
+      <div class="item-top"><span class="num">${String(i + 1).padStart(2, '0')}</span>
+        <button class="btn btn-soft btn-icon" type="button" data-move="about.promises:${i}:-1" aria-label="Move up" ${i === 0 ? 'disabled' : ''}>↑</button>
+        <button class="btn btn-soft btn-icon" type="button" data-move="about.promises:${i}:1" aria-label="Move down" ${i === data.about.promises.length - 1 ? 'disabled' : ''}>↓</button>
+        <button class="btn btn-danger btn-icon" type="button" data-del="about.promises:${i}" aria-label="Delete">✕</button></div>
+      <div class="grid">${text(`about.promises.${i}.title`, 'Title')}${text(`about.promises.${i}.text`, 'Text')}</div></div>`).join('');
+  return `<div class="section-head"><div><h2>About</h2><p>Kenn’s story and photo.</p></div></div>
+    <div class="card"><div class="grid">
+      ${photoField('about.photo', 'Photo of Kenn', 'A portrait (taller than it is wide) works best.')}
+      ${text('about.tagline', 'Line under “Hi, I’m Kenn.”')}
+      ${text('about.heading', 'Story headline')}
+      ${area('about.story', 'Your story', { rows: 7, hint: 'Leave an empty line between paragraphs.' })}
+    </div></div>
+    <div class="section-head" style="margin-top:32px"><div><h2 style="font-size:30px">Our promise</h2><p>The short points shown under your story.</p></div></div>
+    ${promises}
+    <button class="add" type="button" data-add="about.promises">+ Add a promise</button>`;
+}
+
+function viewReviews() {
+  const list = data.reviews.map((r, i) => `<div class="item">
+      <div class="item-top"><span class="num">${String(i + 1).padStart(2, '0')}</span>
+        <button class="btn btn-soft btn-icon" type="button" data-move="reviews:${i}:-1" aria-label="Move up" ${i === 0 ? 'disabled' : ''}>↑</button>
+        <button class="btn btn-soft btn-icon" type="button" data-move="reviews:${i}:1" aria-label="Move down" ${i === data.reviews.length - 1 ? 'disabled' : ''}>↓</button>
+        <button class="btn btn-danger btn-icon" type="button" data-del="reviews:${i}" aria-label="Delete">✕</button></div>
+      <div class="grid">${area(`reviews.${i}.quote`, 'Review', { rows: 3 })}${text(`reviews.${i}.name`, 'Client’s first name')}</div></div>`).join('');
+  return `<div class="section-head"><div><h2>Reviews</h2><p>Shown on the home and About pages. Four reviews fill one row.</p></div></div>
+    ${list}<button class="add" type="button" data-add="reviews">+ Add a review</button>`;
+}
+
+function viewPolicies() {
+  const list = data.policies.map((p, i) => `<div class="item">
+      <div class="item-top"><span class="num">${String(i + 1).padStart(2, '0')}</span>
+        <button class="btn btn-soft btn-icon" type="button" data-move="policies:${i}:-1" aria-label="Move up" ${i === 0 ? 'disabled' : ''}>↑</button>
+        <button class="btn btn-soft btn-icon" type="button" data-move="policies:${i}:1" aria-label="Move down" ${i === data.policies.length - 1 ? 'disabled' : ''}>↓</button>
+        <button class="btn btn-danger btn-icon" type="button" data-del="policies:${i}" aria-label="Delete">✕</button></div>
+      <div class="grid">
+        ${text(`policies.${i}.title`, 'Policy title')}
+        ${area(`policies.${i}.text`, 'Full policy (Policy page)', { rows: 3 })}
+        ${text(`policies.${i}.homeTitle`, 'Short title (home page)', { hint: 'Leave both short fields blank to keep this off the home page.' })}
+        ${text(`policies.${i}.homeText`, 'Short version (home page)')}
+      </div></div>`).join('');
+  return `<div class="section-head"><div><h2>Policies</h2><p>The full versions appear on the Policy page. The short versions appear in “Before you book.”</p></div></div>
+    ${list}<button class="add" type="button" data-add="policies">+ Add a policy</button>`;
+}
+
+function viewSettings() {
+  const S = 'settings.';
+  return `<div class="section-head"><div><h2>Settings</h2><p>Links and contact details used across the whole site.</p></div></div>
+    <div class="card"><h3>Booking</h3><div class="grid">
+      ${text(S + 'bookingUrl', 'Online booking link', { type: 'url', full: true, ph: 'https://…', hint: 'Every “Book” button on the site opens this link.' })}
+      ${text(S + 'newServiceTag', 'New-service tag text', { ph: 'New service', hint: 'For example “New service” or “Now booking”.' })}
+    </div></div>
+    <div class="card"><h3>Contact</h3><div class="grid">
+      ${text(S + 'phone', 'Text-only phone', { type: 'tel' })}
+      ${text(S + 'email', 'Email', { type: 'email' })}
+      ${text(S + 'location', 'Location')}
+      ${text(S + 'hours', 'Open days')}
+      ${text(S + 'closed', 'Closed days')}
+    </div></div>
+    <div class="card"><h3>Social &amp; rewards</h3><div class="grid">
+      ${text(S + 'instagramUrl', 'Instagram link', { type: 'url' })}
+      ${text(S + 'tiktokUrl', 'TikTok link', { type: 'url' })}
+      ${text(S + 'appStoreUrl', 'WinStamp – App Store link', { type: 'url' })}
+      ${text(S + 'googlePlayUrl', 'WinStamp – Google Play link', { type: 'url' })}
+    </div></div>
+    <div class="help"><strong>How publishing works:</strong> edits save on this iPad as you go. Tap <strong>Publish</strong> when you’re ready and the live site updates in about a minute.</div>
+    <div style="margin-top:20px"><button class="btn btn-soft" type="button" id="logout">Sign out</button></div>`;
+}
+
+const VIEWS = { services: viewServices, home: viewHome, about: viewAbout, reviews: viewReviews, policies: viewPolicies, settings: viewSettings };
+
+function renderTabs() {
+  $('#tabs').innerHTML = TABS.map(([k, l]) => `<button class="tab" role="tab" aria-selected="${k === tab}" data-tab="${k}">${l}</button>`).join('');
+}
+function render() {
+  renderTabs();
+  const y = window.scrollY;
+  $('#view').innerHTML = VIEWS[tab]();
+  window.scrollTo(0, y);
+  updateBar();
+  const lo = $('#logout'); if (lo) lo.onclick = logout;
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-tab],[data-open],[data-add],[data-del],[data-move],[data-clear]');
+  if (!t) return;
+  if (t.dataset.tab) { tab = t.dataset.tab; localStorage.setItem('hosw-tab', tab); window.scrollTo(0, 0); render(); return; }
+  if (t.dataset.open) { const i = +t.dataset.open; openSvc = openSvc === i ? -1 : i; render(); return; }
+  if (t.dataset.add) {
+    const list = getPath(data, t.dataset.add);
+    const blank = {
+      services: { id: 'svc-' + Date.now().toString(36), name: '', category: 'Waxing', price: '', duration: '', description: '', photo: '', favorite: false, isNew: false },
+      reviews: { quote: '', name: '' },
+      policies: { title: '', text: '', homeTitle: '', homeText: '' },
+      'about.promises': { title: '', text: '' },
+    }[t.dataset.add];
+    list.push(blank);
+    if (t.dataset.add === 'services') openSvc = list.length - 1;
+    touch(); render();
+    setTimeout(() => { const els = document.querySelectorAll('.svc, .item'); const last = els[els.length - 1]; last && last.scrollIntoView({ behavior: 'smooth', block: 'center' }); const f = last && last.querySelector('input,textarea'); f && f.focus(); }, 50);
+    return;
+  }
+  if (t.dataset.del) {
+    const [p, i] = t.dataset.del.split(':'); const list = getPath(data, p); const item = list[+i];
+    const name = item.name || item.title || 'this item';
+    if (!confirm(`Delete ${name}? You can still tap Discard before publishing to undo.`)) return;
+    list.splice(+i, 1); if (p === 'services') openSvc = -1; touch(); render(); return;
+  }
+  if (t.dataset.move) {
+    const [p, i, d] = t.dataset.move.split(':'); const list = getPath(data, p); const a = +i; const b = a + +d;
+    if (b < 0 || b >= list.length) return;
+    [list[a], list[b]] = [list[b], list[a]]; if (p === 'services') openSvc = b; touch(); render(); return;
+  }
+  if (t.dataset.clear) { setPath(data, t.dataset.clear, ''); touch(); render(); }
+});
+
+document.addEventListener('input', (e) => {
+  const el = e.target; const p = el.dataset.path; if (!p) return;
+  if (el.type === 'checkbox') { setPath(data, p, el.checked); touch(); render(); return; }
+  if (el.tagName === 'SELECT') return;
+  setPath(data, p, el.value); touch();
+  // live-update the service header while typing
+  const m = p.match(/^services\.(\d+)\.(name|price)$/);
+  if (m) { const head = document.querySelector(`[data-open="${m[1]}"] .svc-name`); if (head && m[2] === 'name') head.textContent = el.value || 'New service'; }
+});
+
+document.addEventListener('change', (e) => {
+  const el = e.target;
+  if (el.tagName === 'SELECT' && el.dataset.path) {
+    let v = el.value;
+    if (v === '__new') { v = (prompt('Name of the new section (for example “Facials”):') || '').trim(); if (!v) { render(); return; } }
+    setPath(data, el.dataset.path, v); touch(); render(); return;
+  }
+  if (el.dataset.photo) uploadPhoto(el.dataset.photo, el.files && el.files[0]);
+});
+
+/* ---------- photos ---------- */
+function loadImage(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file); const img = new Image();
+    img.onload = () => resolve({ img, url }); img.onerror = () => reject(new Error('That file couldn’t be opened as a photo.')); img.src = url;
+  });
+}
+async function shrink(file) {
+  const { img, url } = await loadImage(file);
+  const max = 2000; const scale = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement('canvas');
+  c.width = Math.round(img.naturalWidth * scale); c.height = Math.round(img.naturalHeight * scale);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  let q = 0.85; let blob;
+  do { blob = await new Promise((r) => c.toBlob(r, 'image/jpeg', q)); q -= 0.1; } while (blob.size > 2.6e6 && q > 0.4);
+  return { blob, preview: url };
+}
+const toBase64 = (blob) => new Promise((r) => { const fr = new FileReader(); fr.onload = () => r(String(fr.result).split(',')[1]); fr.readAsDataURL(blob); });
+
+async function uploadPhoto(path, file) {
+  if (!file) return;
+  uploading.add(path); render();
+  try {
+    const { blob, preview } = await shrink(file);
+    previews[path] = preview;
+    const r = await api('upload', { method: 'POST', body: JSON.stringify({ name: file.name, type: 'image/jpeg', data: await toBase64(blob) }) });
+    setPath(data, path, r.url); touch();
+    toast('Photo added. Tap Publish to show it on the site.');
+  } catch (err) { toast(err.message, true); }
+  uploading.delete(path); render();
+}
+
+/* ---------- publish ---------- */
+$('#publish').addEventListener('click', async () => {
+  if (busy || !dirty()) return;
+  for (const s of data.services) if (!s.name.trim()) { toast('Every service needs a name.', true); return; }
+  busy = true; setStatus('busy', 'Publishing…'); $('#publish-msg').textContent = 'Publishing…'; updateBar();
+  try {
+    const r = await api('content', { method: 'POST', body: JSON.stringify({ content: data, sha }) });
+    sha = r.sha; published = clone(data); clearDraft();
+    toast('Published! The site updates in about a minute.');
+    waitForLive(r.commit);
+  } catch (err) {
+    busy = false; setStatus('err', 'Not published'); toast(err.message, true); updateBar();
+  }
+});
+async function waitForLive(commit) {
+  setStatus('busy', 'Going live…');
+  const started = Date.now();
+  while (Date.now() - started < 180000) {
+    await new Promise((r) => setTimeout(r, 6000));
+    try {
+      const v = await fetch('/version.json?t=' + Date.now(), { cache: 'no-store' }).then((r) => r.json());
+      if (!commit || v.commit === commit || commit === 'local') break;
+    } catch (e) {}
+  }
+  busy = false; updateBar(); if (!dirty()) setStatus('', 'All changes live');
+}
+$('#discard').addEventListener('click', () => {
+  if (!confirm('Discard all unpublished changes?')) return;
+  data = clone(published); clearDraft(); openSvc = -1; render();
+});
+window.addEventListener('beforeunload', (e) => { if (dirty() || uploading.size) { e.preventDefault(); e.returnValue = ''; } });
+
+/* ---------- start ---------- */
+async function start() {
+  $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
+  setStatus('busy', 'Loading…'); renderTabs(); $('#view').innerHTML = '<p class="hint">Loading…</p>';
+  const r = await api('content');
+  published = r.content; sha = r.sha; data = clone(published);
+  // restore an unpublished draft from this device, if it was based on the same version
+  try {
+    const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+    if (d && d.sha === sha && JSON.stringify(d.data) !== JSON.stringify(published)) { data = d.data; toast('Restored your unpublished changes.'); }
+    else if (d && d.sha !== sha) clearDraft();
+  } catch (e) {}
+  render();
+}
+if (token) start().catch(() => logout()); else logout();
+})();
+</script>
+</body>
+</html>

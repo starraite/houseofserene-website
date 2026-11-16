@@ -1,0 +1,93 @@
+{
+  "settings": {
+    "bookingUrl": "",
+    "newServiceTag": "New service",
+    "appStoreUrl": "",
+    "googlePlayUrl": "",
+    "email": "houseofserenewax@outlook.com",
+    "phone": "404-649-2149",
+    "instagramUrl": "https://www.instagram.com/houseofserenewax",
+    "tiktokUrl": "https://www.tiktok.com/@houseofserenewax",
+    "location": "Decatur, GA",
+    "hours": "Tuesday – Saturday",
+    "closed": "Closed Sunday & Monday"
+  },
+  "home": {
+    "bannerPhoto": "",
+    "bannerVideo": "",
+    "introText": "House of Serene Wax is a professional, body-positive waxing studio in Decatur, GA. We specialize in Brazilian waxes, with expert technique, a gentle approach and a welcoming space to help you feel confident in your skin.",
+    "menuPhoto": "",
+    "studioVideo": "",
+    "studioText": "A calm, clean and private space. See what your visit looks like before you arrive."
+  },
+  "services": [
+    {
+      "id": "brazilian",
+      "name": "Brazilian",
+      "category": "Waxing",
+      "price": "",
+      "duration": "",
+      "description": "Our specialty. [Short service description]",
+      "photo": "",
+      "favorite": true,
+      "isNew": false
+    },
+    {
+      "id": "full-body",
+      "name": "Full Body",
+      "category": "Waxing",
+      "price": "",
+      "duration": "",
+      "description": "[Short service description]",
+      "photo": "",
+      "favorite": true,
+      "isNew": false
+    },
+    {
+      "id": "underarm",
+      "name": "Underarm",
+      "category": "Waxing",
+      "price": "",
+      "duration": "",
+      "description": "[Short service description]",
+      "photo": "",
+      "favorite": true,
+      "isNew": false
+    },
+    {
+      "id": "intimate-bleaching",
+      "name": "Intimate Bleaching",
+      "category": "Treatments",
+      "price": "",
+      "duration": "",
+      "description": "[Short service description]",
+      "photo": "",
+      "favorite": true,
+      "isNew": true
+    }
+  ],
+  "about": {
+    "tagline": "Decatur, GA · Est. 2021",
+    "heading": "Waxing that feels like self-care.",
+    "story": "I've been in the waxing industry since 2021, and I created House of Serene Wax to offer professional, body-positive waxing for everyone.\n\nExpert technique, a gentle approach and a welcoming atmosphere, so you leave feeling confident, smooth and comfortable in your skin.",
+    "photo": "",
+    "promises": [
+      { "title": "Brazilian specialists", "text": "Expert technique focused on smooth, longer-lasting results." },
+      { "title": "Body-positive", "text": "A judgment-free studio where every body is welcome." },
+      { "title": "Gentle approach", "text": "Kenn explains each step so first-timers feel at ease." },
+      { "title": "Private and calm", "text": "One client at a time, in a clean and quiet space." }
+    ]
+  },
+  "reviews": [
+    { "quote": "She was super professional, made me feel comfortable the whole time, and worked efficiently while still being gentle. My results came out smooth and flawless!", "name": "Armani" },
+    { "quote": "I love the fact that she took my mind off the process and made sure I was comfortable. I will definitely be back!", "name": "Santisha" },
+    { "quote": "My results are better and longer lasting every time. Kenn is super sweet and welcoming.", "name": "Alex" },
+    { "quote": "First time getting waxed professionally and I felt prepared and comfortable. Could not recommend more!!", "name": "Caroline" }
+  ],
+  "policies": [
+    { "title": "Cancellations & no-shows", "text": "Cancellations made less than 8 hours before your appointment, and missed appointments without notice, are subject to a 30% fee.", "homeTitle": "8-hour notice", "homeText": "Late cancellations and no-shows carry a 30% fee." },
+    { "title": "Arriving for your appointment", "text": "Early arrivals aren't permitted. There's a 10-minute grace period; after that, a $10 late fee applies.", "homeTitle": "10-minute grace", "homeText": "Please don't arrive early. After 10 minutes, a $10 late fee applies." },
+    { "title": "Guests", "text": "To keep the studio private and comfortable, guests can't join appointments.", "homeTitle": "No guests", "homeText": "Appointments are just you, for a private, comfortable space." },
+    { "title": "Payment", "text": "Cash and all major credit and debit cards, due at the time of service.", "homeTitle": "Payment", "homeText": "Cash and all major cards, due at time of service." }
+  ]
+}

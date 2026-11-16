@@ -1,31 +1,27 @@
 # House of Serene Wax website
 
-Static site (plain HTML/CSS/JS, no build step). Deploys to Vercel as-is.
+Static site built from `content/site.json`, plus an admin editor at `/admin`.
 
-## Pages
-- `/` home · `/about` · `/services` · `/policy`
+## How it works
+- `content/site.json` holds all editable content (services, prices, photos, reviews, policies, links).
+- `node build.js` turns it into the pages in `public/` (Vercel runs this on every deploy).
+- `/admin` is the editor. Publishing commits `content/site.json` (and uploaded photos in `uploads/`) to this repo; Vercel redeploys automatically in about a minute.
 
-## One-place settings: `assets/site.js`
-- `bookingUrl` — paste the booking link; every Book button opens it in a new tab
-- `newServiceTag` — text on the Intimate Bleaching tag ('' hides it)
-- `appStoreUrl`, `googlePlayUrl` — WinStamp app links
+## Vercel environment variables (Production)
+- `ADMIN_PASSWORD`: the password for /admin
+- `GITHUB_TOKEN`: fine-grained GitHub token with **Contents: Read and write** on this repo only
+- Optional: `SESSION_SECRET` (defaults to the admin password), `GITHUB_REPO`, `GITHUB_BRANCH`
 
-## Logos (in place)
-- `logo-main.png` — main white logo, home banner
-- `logo-main.png` is also used in the footer
-- `logo-mark.png` — white HSW monogram, top menu on every page
-- `favicon.png` — white monogram on forest green (browser tab)
-- `winstamp-white.png` — rewards banner
-- Banner, service, Kenn and studio photos/video: replace the `.ph` placeholder blocks (comments in `index.html` show where)
+Changing `ADMIN_PASSWORD` signs out every device. The GitHub token expires on the date set when it was created; generate a new one before then and update the variable.
 
-## Still needed from the client
-- Prices, short descriptions and durations for each service
-- Booking link
-- WinStamp App Store / Google Play links
-- Photos: banner, Brazilian, Full Body, Underarm, Intimate Bleaching, botanical detail, Kenn portrait; studio video
-- Optional extra About copy from Kenn
+## Local preview
+```
+ADMIN_PASSWORD=test node tools/dev-server.js
+```
+Open http://localhost:3000 (site) and http://localhost:3000/admin (editor). Saves write to local files only.
 
-## Deploy
-1. Push this folder to a GitHub repo
-2. Vercel → Add New Project → import the repo → Framework: Other → Deploy
-3. Project → Settings → Domains → add her domain, then add the DNS records Vercel shows at her registrar
+## Files
+- `static/assets/`: styles, scripts, logos
+- `static/admin/`: the editor
+- `api/`: login, content and photo-upload endpoints
+- `uploads/`: photos added through the editor
