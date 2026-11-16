@@ -133,6 +133,11 @@ select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,va
 .publish-inner p{margin:0;flex:1;font-size:15px;color:var(--body)}
 .publish-inner .btn{min-width:150px}
 
+.modal{position:fixed;inset:0;z-index:60;background:rgba(30,43,34,.45);display:flex;align-items:center;justify-content:center;padding:24px}
+.modal-card{background:var(--cream);border-radius:24px;padding:28px;width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px}
+.modal-card h3{font-size:28px}.modal-card p{margin:0;color:var(--body)}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+.btn-red{background:var(--red);color:#fff}
 .help{background:var(--mist);border-radius:22px;padding:20px 22px;font-size:15px;color:var(--body)}
 .help strong{color:var(--ink)}
 @media (max-width:640px){
@@ -178,6 +183,14 @@ select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,va
   </div>
 </div>
 <div class="toast" id="toast" role="status"></div>
+<div class="modal hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <form class="modal-card" id="modal-form">
+    <h3 id="modal-title"></h3>
+    <p id="modal-body"></p>
+    <input type="text" id="modal-input" class="hidden" aria-label="Name">
+    <div class="modal-btns"><button class="btn btn-soft" type="button" id="modal-cancel">Cancel</button><button class="btn" type="submit" id="modal-ok"></button></div>
+  </form>
+</div>
 
 <script>
 (() => {
@@ -189,12 +202,13 @@ const $ = (s) => document.querySelector(s);
 const esc = (v) => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const clone = (o) => JSON.parse(JSON.stringify(o));
 const DRAFT_KEY = 'hosw-draft';
+let store; try { localStorage.setItem('_t', '1'); localStorage.removeItem('_t'); store = localStorage; } catch (e) { const m = {}; store = { getItem: (k) => (k in m ? m[k] : null), setItem: (k, v) => { m[k] = String(v); }, removeItem: (k) => { delete m[k]; } }; }
 
-let token = localStorage.getItem('hosw-token') || '';
+let token = store.getItem('hosw-token') || '';
 let published = null;   // content as last loaded/published
 let data = null;        // working copy
 let sha = null;
-let tab = localStorage.getItem('hosw-tab') || 'services';
+let tab = store.getItem('hosw-tab') || 'services';
 let openSvc = -1;
 let busy = false;
 const uploading = new Set();
@@ -217,20 +231,20 @@ $('#login-form').addEventListener('submit', async (e) => {
   const btn = $('#login-btn'); btn.disabled = true; $('#login-err').textContent = '';
   try {
     const r = await api('login', { method: 'POST', body: JSON.stringify({ password: $('#pw').value }) });
-    token = r.token; localStorage.setItem('hosw-token', token); $('#pw').value = '';
+    token = r.token; store.setItem('hosw-token', token); $('#pw').value = '';
     await start();
   } catch (err) { $('#login-err').textContent = err.message; }
   btn.disabled = false;
 });
 function logout() {
-  token = ''; localStorage.removeItem('hosw-token');
+  token = ''; store.removeItem('hosw-token');
   $('#app').classList.add('hidden'); $('#login').classList.remove('hidden');
 }
 
 /* ---------- state ---------- */
 const dirty = () => JSON.stringify(data) !== JSON.stringify(published);
-function saveDraft() { try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ sha, data })); } catch (e) {} }
-function clearDraft() { localStorage.removeItem(DRAFT_KEY); }
+function saveDraft() { try { store.setItem(DRAFT_KEY, JSON.stringify({ sha, data })); } catch (e) {} }
+function clearDraft() { store.removeItem(DRAFT_KEY); }
 function touch() { saveDraft(); updateBar(); }
 
 function getPath(obj, path) { return path.split('.').reduce((o, k) => (o == null ? o : o[k]), obj); }
@@ -254,6 +268,21 @@ let toastTimer;
 function toast(msg, err) {
   const t = $('#toast'); t.textContent = msg; t.className = 'toast show' + (err ? ' err' : '');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), err ? 5000 : 3000);
+}
+
+/* ---------- in-page dialog ---------- */
+function ask({ title, body = '', ok = 'OK', danger = false, input = false, placeholder = '' }) {
+  return new Promise((resolve) => {
+    const m = $('#modal'); const inp = $('#modal-input');
+    $('#modal-title').textContent = title; $('#modal-body').textContent = body;
+    $('#modal-body').classList.toggle('hidden', !body);
+    inp.classList.toggle('hidden', !input); inp.value = ''; inp.placeholder = placeholder;
+    const okb = $('#modal-ok'); okb.textContent = ok; okb.className = 'btn ' + (danger ? 'btn-red' : 'btn-clay');
+    m.classList.remove('hidden'); setTimeout(() => (input ? inp : okb).focus(), 30);
+    const done = (v) => { m.classList.add('hidden'); $('#modal-form').onsubmit = null; $('#modal-cancel').onclick = null; resolve(v); };
+    $('#modal-form').onsubmit = (e) => { e.preventDefault(); done(input ? inp.value.trim() : true); };
+    $('#modal-cancel').onclick = () => done(input ? '' : false);
+  });
 }
 
 /* ---------- field builders ---------- */
@@ -433,10 +462,10 @@ function render() {
 }
 
 /* ---------- events ---------- */
-document.addEventListener('click', (e) => {
+document.addEventListener('click', async (e) => {
   const t = e.target.closest('[data-tab],[data-open],[data-add],[data-del],[data-move],[data-clear]');
   if (!t) return;
-  if (t.dataset.tab) { tab = t.dataset.tab; localStorage.setItem('hosw-tab', tab); window.scrollTo(0, 0); render(); return; }
+  if (t.dataset.tab) { tab = t.dataset.tab; store.setItem('hosw-tab', tab); window.scrollTo(0, 0); render(); return; }
   if (t.dataset.open) { const i = +t.dataset.open; openSvc = openSvc === i ? -1 : i; render(); return; }
   if (t.dataset.add) {
     const list = getPath(data, t.dataset.add);
@@ -455,7 +484,7 @@ document.addEventListener('click', (e) => {
   if (t.dataset.del) {
     const [p, i] = t.dataset.del.split(':'); const list = getPath(data, p); const item = list[+i];
     const name = item.name || item.title || 'this item';
-    if (!confirm(`Delete ${name}? You can still tap Discard before publishing to undo.`)) return;
+    if (!(await ask({ title: `Delete ${name}?`, body: 'You can still tap Discard before publishing to undo this.', ok: 'Delete', danger: true }))) return;
     list.splice(+i, 1); if (p === 'services') openSvc = -1; touch(); render(); return;
   }
   if (t.dataset.move) {
@@ -476,11 +505,11 @@ document.addEventListener('input', (e) => {
   if (m) { const head = document.querySelector(`[data-open="${m[1]}"] .svc-name`); if (head && m[2] === 'name') head.textContent = el.value || 'New service'; }
 });
 
-document.addEventListener('change', (e) => {
+document.addEventListener('change', async (e) => {
   const el = e.target;
   if (el.tagName === 'SELECT' && el.dataset.path) {
     let v = el.value;
-    if (v === '__new') { v = (prompt('Name of the new section (for example “Facials”):') || '').trim(); if (!v) { render(); return; } }
+    if (v === '__new') { v = await ask({ title: 'New section', body: 'Name the new section, for example “Facials”.', ok: 'Add section', input: true, placeholder: 'Section name' }); if (!v) { render(); return; } }
     setPath(data, el.dataset.path, v); touch(); render(); return;
   }
   if (el.dataset.photo) uploadPhoto(el.dataset.photo, el.files && el.files[0]);
@@ -544,8 +573,8 @@ async function waitForLive(commit) {
   }
   busy = false; updateBar(); if (!dirty()) setStatus('', 'All changes live');
 }
-$('#discard').addEventListener('click', () => {
-  if (!confirm('Discard all unpublished changes?')) return;
+$('#discard').addEventListener('click', async () => {
+  if (!(await ask({ title: 'Discard changes?', body: 'This removes every edit since you last published.', ok: 'Discard', danger: true }))) return;
   data = clone(published); clearDraft(); openSvc = -1; render();
 });
 window.addEventListener('beforeunload', (e) => { if (dirty() || uploading.size) { e.preventDefault(); e.returnValue = ''; } });
@@ -558,7 +587,7 @@ async function start() {
   published = r.content; sha = r.sha; data = clone(published);
   // restore an unpublished draft from this device, if it was based on the same version
   try {
-    const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+    const d = JSON.parse(store.getItem(DRAFT_KEY) || 'null');
     if (d && d.sha === sha && JSON.stringify(d.data) !== JSON.stringify(published)) { data = d.data; toast('Restored your unpublished changes.'); }
     else if (d && d.sha !== sha) clearDraft();
   } catch (e) {}
