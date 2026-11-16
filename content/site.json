@@ -53,17 +53,6 @@
       "photo": "/uploads/3cfe4f17-dd08-4960-b867-737d5c67440a-png-mwioe35y1b0c.jpg",
       "favorite": true,
       "isNew": false
-    },
-    {
-      "id": "intimate-bleaching",
-      "name": "Intimate Bleaching",
-      "category": "Treatments",
-      "price": "",
-      "duration": "",
-      "description": "[Short service description]",
-      "photo": "",
-      "favorite": true,
-      "isNew": true
     }
   ],
   "about": {
